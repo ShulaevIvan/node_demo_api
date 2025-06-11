@@ -20,3 +20,4 @@ app.use(userRouter);
 app.listen(PORT);
 console.log(`server started at: \n http://${HOST}:${PORT}`);
 connectToDB();
+
