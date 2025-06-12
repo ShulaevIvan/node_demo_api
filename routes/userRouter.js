@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const bcrypt = require('bcrypt');
+const passport = require('passport');
 const hashPassword = require('../utils/hashPassword');
 const userModule = require('../modules/userModule');
 
@@ -35,16 +36,23 @@ router.post('/api/signup', async (req, res) => {
     }
 });
 
-router.post('/api/signin', async (req, res) => {
+router.post('/api/signin', async (req, res, next) => {
     const data = req.body;
     return new Promise((resolve, reject) => {
-        userModule.findByEmail(data.email)
-        .then((targetUserData) => {
-            bcrypt.compare(data.password, targetUserData[0].passwordHash, (err, result) => {
-                console.log("test:", result);
+        passport.authenticate('local', function(err, user) {
+            if (err) {
+                return next(err);
+            }
+            if (!user) {
+                return res.send('Укажите правильный email или пароль!');
+            }
+            req.logIn(user, function(err) {
+                if (err) {
+                    return next(err);
+                }
+                return res.status(201).json({'status': 'ok', data: user});
             });
-        })
-        res.status(200).json({'status': 'ok'});
+        })(req, res, next);
     });
 });
 
