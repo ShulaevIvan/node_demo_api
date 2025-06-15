@@ -11,16 +11,19 @@ const userSchema = mongoose.Schema({
         type: String,
         default: '',
         require: true,
+        unique: false,
     },
     name	: {
         type: String,
         default: '',
         require: true,
+        unique: false,
     },
     contactPhone: {
         type: String,
         default: '',
         require: false,
+        unique: false,
     }
 });
 

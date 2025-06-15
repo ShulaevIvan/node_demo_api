@@ -1,5 +1,4 @@
 const router = require('express').Router();
-const bcrypt = require('bcrypt');
 const passport = require('passport');
 const hashPassword = require('../utils/hashPassword');
 const userModule = require('../modules/userModule');
@@ -10,7 +9,7 @@ router.get('/', async (req, res) => {
     });
 });
 
-router.post('/api/signup', async (req, res) => {
+router.post('/signup', async (req, res) => {
     try {
         const data = req.body;
         await hashPassword(data.password)
@@ -36,7 +35,7 @@ router.post('/api/signup', async (req, res) => {
     }
 });
 
-router.post('/api/signin', async (req, res, next) => {
+router.post('/signin', async (req, res, next) => {
     const data = req.body;
     return new Promise((resolve, reject) => {
         passport.authenticate('local', function(err, user) {
@@ -44,7 +43,7 @@ router.post('/api/signin', async (req, res, next) => {
                 return next(err);
             }
             if (!user) {
-                return res.send('Укажите правильный email или пароль!');
+                return res.send('email or password not valid');
             }
             req.logIn(user, function(err) {
                 if (err) {
@@ -56,7 +55,7 @@ router.post('/api/signin', async (req, res, next) => {
     });
 });
 
-router.delete('/api/admin/users', async (req, res) => {
+router.delete('/admin/users', async (req, res) => {
     try {
         const data =req.body;
         await userModule.remove(data.email)

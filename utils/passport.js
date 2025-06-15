@@ -5,12 +5,12 @@ const userModule = require('../modules/userModule');
 
 
 passport.serializeUser(async (user, done) => {
-    console.log('Сериализация');
+    // console.log('Сериализация');
     done(null, user);
 });
 
 passport.deserializeUser(async (email, done) => {
-    console.log('Десериализация');
+    // console.log('Десериализация');
     await userModule.findByEmail(email)
     .then((targetUser) => {
         const user = targetUser ? targetUser : false;
@@ -20,7 +20,6 @@ passport.deserializeUser(async (email, done) => {
 
 passport.use(
   new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
-    console.log(password)
     await userModule.findByEmail(email)
         .then((targetUser) => {
             bcrypt.compare(password, targetUser[0].passwordHash, (err, checkResult) => {
