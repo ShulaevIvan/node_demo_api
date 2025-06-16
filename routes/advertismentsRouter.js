@@ -2,11 +2,10 @@ const router = require('express').Router();
 const uploadMiddleware = require('../utils/uploadFile');
 const isAuthenticated = require('../utils/isAuthenticated');
 const AdvertismentModule = require('../modules/advertisementModule');
-const advertisementModule = require('../modules/advertisementModule');
 
 router.get('/advertisements', async (req, res) => {
     try {
-        advertisementModule.getAll()
+        AdvertismentModule.getAll()
         .then((data) => {
             res.status(200).json({status: 'ok', data: data});
         })
@@ -15,6 +14,16 @@ router.get('/advertisements', async (req, res) => {
         res.status(500).json({status: 'err', data: err});
     }
 });
+
+router.get('/advertisements/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+    }
+    catch(err) {
+        res.status(500).json({status: 'ok', data: err});
+    }
+})
 
 router.post('/advertisements',
     isAuthenticated, 
@@ -52,6 +61,23 @@ router.post('/advertisements',
         return res.status(500).json({status: 'err'});
     }
 });
+
+router.delete('/advertisements/:id',
+    isAuthenticated,
+    async (req, res) => {
+        try {
+            const { id } = req.params;
+            await AdvertismentModule.remove(id)
+            .then((data) => {
+                console.log(data);
+                res.status(200).json({status: 'ok'});
+            });
+        }
+        catch(err) {
+
+        }
+    }
+);
 
 
 module.exports = router;

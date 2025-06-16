@@ -11,26 +11,26 @@ class AdvertismentModule {
         return new Promise((resolve, reject) => {
             this.advertismentCollection.find().select('-__v')
             .then((data) => {
-                const allData = data.map((advItem) => {
-                    return userModule.userCollection.find({_id: advItem.userId})
-                    .then((userData) => {
-                        const advObj = {
-                            id: advItem._id,
-                            shortTitle: advItem.shortText,
-                            images: advItem.images,
-                            user: {
+                const resultData = [];
+                data.forEach((advItem) => {
+                    const advObj = {
+                        id: advItem._id,
+                        shortTitle: advItem.shortText,
+                        images: advItem.images,
+                        user: () => userModule.userCollection.find({_id: advItem.userId._id})
+                        .then((userData) => {
+                            console.log(userData[0])
+                            return {
                                 id: userData[0]._id,
-                                name: userData[0].name
-                            },
-                            createdAt: advItem.createdAt,
-                        }
-                        return advObj;
-                    });
+                                name: userData[0].name,
+                            }
+                        }),
+                        createdAt: advItem.createdAt,
+                    }
+                    resultData.push(advObj);
                 });
-                Promise.all(allData).then((resultData) => {
-                    resolve(resultData);
-                });
-            });
+                resolve(resultData)
+            })
         });
     }
 
