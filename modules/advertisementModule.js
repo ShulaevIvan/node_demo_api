@@ -35,8 +35,32 @@ class AdvertismentModule {
     }
 
     async getById(id) {
+        if (!mongoose.Types.ObjectId.isValid(id)) return 'not found';
+        
         return new Promise((resolve, reject) => {
-            this.advertismentCollection.find({__id: id});
+            this.advertismentCollection.find({_id: id})
+            .then((data) => {
+                const allData = data.map((advItem) => {
+                    return userModule.userCollection.find({_id: advItem.userId})
+                    .then((userData) => {
+                        const advObj = {
+                            id: advItem._id,
+                            shortTitle: advItem.shortText,
+                            images: advItem.images,
+                            user: {
+                                id: userData[0]._id,
+                                name: userData[0].name
+                            },
+                            createdAt: advItem.createdAt,
+                        }
+                        return advObj;
+                    });
+                });
+                Promise.all(allData).then((resultData) => {
+                    resolve(resultData);
+                })
+            })
+            
         })
     }
 

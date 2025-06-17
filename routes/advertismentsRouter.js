@@ -18,10 +18,18 @@ router.get('/advertisements', async (req, res) => {
 router.get('/advertisements/:id', async (req, res) => {
     try {
         const { id } = req.params;
+        AdvertismentModule.getById(id)
+        .then((data) => {
+            if (data) {
+                res.status(200).json({status: 'ok', data: data});
+                return;
+            }
+            res.status(200).json({status: 'not found', data: data});
+        })
         
     }
     catch(err) {
-        res.status(500).json({status: 'ok', data: err});
+        res.status(500).json({status: 'err', data: err});
     }
 })
 
