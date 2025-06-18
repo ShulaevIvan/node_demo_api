@@ -9,6 +9,9 @@ router.get('/advertisements', async (req, res) => {
         .then((data) => {
             res.status(200).json({status: 'ok', data: data});
         })
+        .catch((err) => {
+            res.status(500).json({status: 'err', data: err});
+        })
     }
     catch(err) {
         res.status(500).json({status: 'err', data: err});
@@ -26,12 +29,14 @@ router.get('/advertisements/:id', async (req, res) => {
             }
             res.status(200).json({status: 'not found', data: data});
         })
-        
+        .catch((err) => {
+            res.status(500).json({status: 'err', data: err});
+        });
     }
     catch(err) {
         res.status(500).json({status: 'err', data: err});
-    }
-})
+    };
+});
 
 router.post('/advertisements',
     isAuthenticated, 
@@ -60,6 +65,9 @@ router.post('/advertisements',
             await AdvertismentModule.create(advData)
             .then((data) => {
                 return res.status(201).json({data: data, status: 'ok'});
+            })
+            .catch((err) => {
+                res.status(500).json({status: 'err', data: err});
             });
         }
         else return res.status(500).json({status: 'err'});
@@ -67,7 +75,7 @@ router.post('/advertisements',
     }
     catch(err) {
         return res.status(500).json({status: 'err'});
-    }
+    };
 });
 
 router.delete('/advertisements/:id',
@@ -75,15 +83,22 @@ router.delete('/advertisements/:id',
     async (req, res) => {
         try {
             const { id } = req.params;
-            await AdvertismentModule.remove(id)
+            const { user } = req.session.passport;
+            if (!user) return res.status(401);
+            await AdvertismentModule.remove(id, user)
             .then((data) => {
-                console.log(data);
-                res.status(200).json({status: 'ok'});
+                if (data) {
+                    return res.status(200).json({status: 'deleted', data});
+                }
+                return res.status(403).json({status: 'user is not owner'}, null);
+            })
+            .catch((err) => {
+                res.status(500).json({status: 'err', data: err});
             });
         }
         catch(err) {
-
-        }
+            res.status(500).json({status: 'err', data: err});
+        };
     }
 );
 

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const formatResultData = require('../utils/formatResultData');
 const userModule = require('../modules/userModule');
 const advertismentCollection = require('../models/Advertisement');
 
@@ -11,58 +12,31 @@ class AdvertismentModule {
         return new Promise((resolve, reject) => {
             this.advertismentCollection.find().select('-__v')
             .then((data) => {
-                const allData = data.map((advItem) => {
-                    return userModule.userCollection.find({_id: advItem.userId})
-                    .then((userData) => {
-                        const advObj = {
-                            id: advItem._id,
-                            shortTitle: advItem.shortText,
-                            images: advItem.images,
-                            user: {
-                                id: userData[0]._id,
-                                name: userData[0].name
-                            },
-                            createdAt: advItem.createdAt,
-                        }
-                        return advObj;
+                formatResultData(data)
+                .then((allData) => {
+                    Promise.all(allData).then((resultData) => {
+                        resolve(resultData);
                     });
-                });
-                Promise.all(allData).then((resultData) => {
-                    resolve(resultData);
-                });
+                })
             });
         });
-    }
+    };
 
     async getById(id) {
         if (!mongoose.Types.ObjectId.isValid(id)) return 'not found';
         
         return new Promise((resolve, reject) => {
-            this.advertismentCollection.find({_id: id})
+            this.advertismentCollection.find({_id: id}).select('-__v')
             .then((data) => {
-                const allData = data.map((advItem) => {
-                    return userModule.userCollection.find({_id: advItem.userId})
-                    .then((userData) => {
-                        const advObj = {
-                            id: advItem._id,
-                            shortTitle: advItem.shortText,
-                            images: advItem.images,
-                            user: {
-                                id: userData[0]._id,
-                                name: userData[0].name
-                            },
-                            createdAt: advItem.createdAt,
-                        }
-                        return advObj;
+                formatResultData(data)
+                .then((allData) => {
+                    Promise.all(allData).then((resultData) => {
+                        resolve(resultData);
                     });
-                });
-                Promise.all(allData).then((resultData) => {
-                    resolve(resultData);
                 })
-            })
-            
-        })
-    }
+            });
+        });
+    };
 
     async create(data) {
         return new Promise((resolve, reject) => {
@@ -70,7 +44,6 @@ class AdvertismentModule {
             userModule.findByEmail(data.email)
             .then((userData) => {
                 if (userData && userData.length > 0) {
-                    console.log(data)
                     const advertisment = {
                         shortText: data.shortTitle,
                         description: data.description,
@@ -100,12 +73,17 @@ class AdvertismentModule {
                 else reject({});
             });
         })
-    }
-    async remove() {
+    };
+
+    async remove(advId, userData) {
         return new Promise((resolve, reject) => {
-            // this.advertismentCollection.findOneAndUpdate(filter, update, options, callback)
-        })
-    }
+            const { _id, email } = userData;
+            this.advertismentCollection.findOneAndUpdate({_id: advId, userId: _id}, {isDeleted: true})
+            .then((data) => {
+                resolve(data);
+            });
+        });
+    };
 };
 
 module.exports = new AdvertismentModule();
