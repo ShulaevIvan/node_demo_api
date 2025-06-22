@@ -29,9 +29,6 @@ router.get('/advertisements/:id', async (req, res) => {
             }
             res.status(200).json({status: 'not found', data: data});
         })
-        .catch((err) => {
-            res.status(500).json({status: 'err', data: err});
-        });
     }
     catch(err) {
         res.status(500).json({status: 'err', data: err});
@@ -45,7 +42,6 @@ router.post('/advertisements',
     try {
         const files = req.files;
         const { shortTitle, description } = req.body;
-
         if (files) {
             const pathArr = [];
             
@@ -53,7 +49,6 @@ router.post('/advertisements',
                 const { path } = fileItem;
                 pathArr.push(path);
             });
-
             const advData = {
                 email: req.session.passport.user.email,
                 name: req.session.passport.user.name,
@@ -66,9 +61,6 @@ router.post('/advertisements',
             .then((data) => {
                 return res.status(201).json({data: data, status: 'ok'});
             })
-            .catch((err) => {
-                res.status(500).json({status: 'err', data: err});
-            });
         }
         else return res.status(500).json({status: 'err'});
 
@@ -92,9 +84,6 @@ router.delete('/advertisements/:id',
                 }
                 return res.status(403).json({status: 'user is not owner'}, null);
             })
-            .catch((err) => {
-                res.status(500).json({status: 'err', data: err});
-            });
         }
         catch(err) {
             res.status(500).json({status: 'err', data: err});

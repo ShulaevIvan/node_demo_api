@@ -4,6 +4,12 @@ const hashPassword = require('../utils/hashPassword');
 const userModule = require('../modules/userModule');
 
 router.get('/', async (req, res) => {
+    try {
+
+    }
+    catch(err) {
+        
+    }
     return new Promise((resolve, reject) => {
         res.status(201).json({'status': 'ok'});
     });
@@ -40,6 +46,7 @@ router.post('/signin', async (req, res, next) => {
     return new Promise((resolve, reject) => {
         passport.authenticate('local', function(err, user) {
             if (err) {
+                console.log(user)
                 return next(err);
             }
             if (!user) {
